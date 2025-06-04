@@ -4,10 +4,13 @@ import { AccountCard } from './components/cards/AccountCard';
 import { TransferModal } from './components/modals/TransferModal';
 import { MoneyOperationModal } from './components/modals/MoneyOperationModal';
 import { AccountForm } from './components/forms/AccountForm';
-import { Grid as MuiGrid, Fab, Alert, Snackbar } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Grid as MuiGrid, Fab, Alert, Snackbar, Button } from '@mui/material';
+import { Add as AddIcon, TrendingUp as TrendingUpIcon, SmartToy as BotIcon } from '@mui/icons-material';
 import { AccountService } from './services/accountService';
 import { Account, AccountFormData, TransferData, Transaction, MoneyOperationType } from './types/account';
+import StockDashboard from './components/StockDashboard';
+import FinancialBotChat from './components/FinancialBotChat';
+import { Portfolio } from './services/geminiService';
 
 // Define the type for money operation parameters
 interface MoneyOperationParams {
@@ -47,6 +50,7 @@ function App() {
   const [editingAccount, setEditingAccount] = useState<Account | undefined>(undefined);
   const [isMoneyOperationModalOpen, setIsMoneyOperationModalOpen] = useState(false);
   const [moneyOperationType, setMoneyOperationType] = useState<MoneyOperationType>('deposit');
+  const [currentView, setCurrentView] = useState<'bank' | 'stock' | 'bot'>('bank');
   const [notification, setNotification] = useState<{
     message: string;
     type: 'success' | 'error';
@@ -155,8 +159,88 @@ function App() {
     }
   };
 
+  // Preparar dados do portfólio para o bot
+  const portfolioData: Portfolio = {
+    totalValue: accounts.reduce((sum, acc) => sum + acc.balance, 0),
+    cashBalance: accounts.reduce((sum, acc) => sum + acc.balance, 0),
+    stocks: [], // Por enquanto vazio, mas pode ser expandido
+    riskProfile: 'moderate',
+    investmentGoals: ['crescimento', 'preservação de capital']
+  };
+
+  const userProfile = {
+    age: 30, // Pode ser configurado pelo usuário
+    riskTolerance: 'moderate' as const,
+    investmentGoals: ['aposentadoria', 'casa própria'],
+    timeHorizon: 'longo prazo',
+    monthlyInvestment: 1000
+  };
+
+  // Se estivermos na view de ações, renderizar o StockDashboard
+  if (currentView === 'stock') {
+    return <StockDashboard />;
+  }
+
+  // Se estivermos na view do bot, renderizar o FinancialBotChat
+  if (currentView === 'bot') {
+    return (
+      <FinancialBotChat 
+        userProfile={userProfile}
+        portfolioData={portfolioData}
+      />
+    );
+  }
+
   return (
     <DashboardLayout>
+      {/* Botões de navegação */}
+      <div className="mb-6 flex gap-3">
+        <Button
+          variant={currentView === 'bank' ? 'contained' : 'outlined'}
+          onClick={() => setCurrentView('bank')}
+          startIcon={<AddIcon />}
+          sx={{ 
+            borderRadius: 2,
+            textTransform: 'none',
+            fontWeight: 600
+          }}
+        >
+          Banco
+        </Button>
+        <Button
+          variant={currentView === 'stock' ? 'contained' : 'outlined'}
+          onClick={() => setCurrentView('stock')}
+          startIcon={<TrendingUpIcon />}
+          sx={{ 
+            borderRadius: 2,
+            textTransform: 'none',
+            fontWeight: 600,
+            bgcolor: currentView === 'stock' ? '#1976d2' : 'transparent',
+            '&:hover': {
+              bgcolor: currentView === 'stock' ? '#1565c0' : 'rgba(25, 118, 210, 0.04)'
+            }
+          }}
+        >
+          Ações & Investimentos
+        </Button>
+        <Button
+          variant={currentView === 'bot' ? 'contained' : 'outlined'}
+          onClick={() => setCurrentView('bot')}
+          startIcon={<BotIcon />}
+          sx={{ 
+            borderRadius: 2,
+            textTransform: 'none',
+            fontWeight: 600,
+            bgcolor: currentView === 'bot' ? '#1976d2' : 'transparent',
+            '&:hover': {
+              bgcolor: currentView === 'bot' ? '#1565c0' : 'rgba(25, 118, 210, 0.04)'
+            }
+          }}
+        >
+          SenseiBot - Assistente Financeiro
+        </Button>
+      </div>
+      
       <MuiGrid container spacing={3}>
         {accounts.map((account) => (
           <MuiGrid item key={account.id} xs={12} sm={6} md={4} lg={3}>
