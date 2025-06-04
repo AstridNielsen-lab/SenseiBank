@@ -67,7 +67,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             <Typography variant="subtitle1" className="font-medium">
               De: {fromAccount?.bankName}
               <span className="block text-sm text-gray-600 dark:text-gray-400">
-                Saldo disponível: R$ {fromAccount?.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                Saldo disponível: R$ {(fromAccount?.balance ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </span>
             </Typography>
             
@@ -98,7 +98,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               InputProps={{ 
                 inputProps: { 
                   min: 0,
-                  max: fromAccount?.balance,
+                  max: fromAccount?.balance ?? 0,
                   step: "0.01"
                 }
               }}
@@ -123,7 +123,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             type="submit" 
             variant="contained" 
             color="primary"
-            disabled={!amount || !toAccountId || Number(amount) > (fromAccount?.balance || 0)}
+            disabled={!amount || !toAccountId || Number(amount) > (fromAccount?.balance ?? 0)}
           >
             Transferir
           </Button>

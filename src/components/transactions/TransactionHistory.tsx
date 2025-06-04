@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   Paper,
   Table,
@@ -37,11 +37,12 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   const [transactionType, setTransactionType] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const getAccountName = (id: string) => {
+  const getAccountName = useCallback((id: string) => {
     return accounts.find(acc => acc.id === id)?.bankName || 'Conta não encontrada';
-  };
+  }, [accounts]);
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return '-';
     return new Intl.DateTimeFormat('pt-BR', {
       dateStyle: 'short',
       timeStyle: 'short',
@@ -51,8 +52,12 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   // Filter transactions based on filters
   const filteredTransactions = useMemo(() => {
     return transactions.filter(transaction => {
-      const matchesDate = (!dateRange.start || new Date(transaction.date) >= new Date(dateRange.start)) &&
-                         (!dateRange.end || new Date(transaction.date) <= new Date(dateRange.end));
+      const transactionDate = transaction.date ? new Date(transaction.date) : new Date();
+      const startDate = dateRange.start ? new Date(dateRange.start) : null;
+      const endDate = dateRange.end ? new Date(dateRange.end) : null;
+      
+      const matchesDate = (!startDate || transactionDate >= startDate) &&
+                          (!endDate || transactionDate <= endDate);
       
       const matchesType = !transactionType || transaction.type === transactionType;
       

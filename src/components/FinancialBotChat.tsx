@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   Info,
   Loader,
-  Settings,
   BarChart3,
   Target,
   DollarSign

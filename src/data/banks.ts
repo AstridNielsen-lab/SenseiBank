@@ -1,5 +1,3 @@
-import { Bank } from '../types/account';
-
 // Legacy bank data for backward compatibility
 export const BANKS_DATA = [
   // Bancos Nacionais

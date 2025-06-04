@@ -166,7 +166,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
               color: isDark ? theme.palette.primary.light : theme.palette.primary.main,
             }}
           >
-            R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            R$ {(balance || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </Typography>
         </Box>
       </CardContent>

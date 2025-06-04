@@ -4,13 +4,15 @@ import { AccountCard } from './components/cards/AccountCard';
 import { TransferModal } from './components/modals/TransferModal';
 import { MoneyOperationModal } from './components/modals/MoneyOperationModal';
 import { AccountForm } from './components/forms/AccountForm';
-import { Grid as MuiGrid, Fab, Alert, Snackbar, Button } from '@mui/material';
-import { Add as AddIcon, TrendingUp as TrendingUpIcon, SmartToy as BotIcon } from '@mui/icons-material';
+import { Fab, Alert, Snackbar } from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
 import { AccountService } from './services/accountService';
 import { Account, AccountFormData, TransferData, Transaction, MoneyOperationType } from './types/account';
 import StockDashboard from './components/StockDashboard';
 import FinancialBotChat from './components/FinancialBotChat';
 import { Portfolio } from './services/geminiService';
+import { TransactionHistory } from './components/transactions/TransactionHistory';
+import { TransactionSummary } from './components/transactions/TransactionSummary';
 
 // Define the type for money operation parameters
 interface MoneyOperationParams {
@@ -24,14 +26,22 @@ interface AccountServiceResult {
   success: boolean;
   accounts: Account[];
   transaction?: Transaction;
+  error?: string;
 }
-
-import { TransactionHistory } from './components/transactions/TransactionHistory';
-import { TransactionSummary } from './components/transactions/TransactionSummary';
 
 const INITIAL_ACCOUNTS: Account[] = [
   {
     id: '1',
+    nome: 'Conta Principal',
+    saldo: 5000.00,
+    moeda: 'BRL' as const,
+    tipo: 'Conta Corrente',
+    agencia: '0001',
+    numeroConta: '123456',
+    bankId: 'banco-brasil',
+    ativo: true,
+    cor: '#1a73e8',
+    // Legacy compatibility
     bankName: 'Banco Principal',
     balance: 5000.00,
     accountType: 'Conta Corrente',
@@ -50,7 +60,7 @@ function App() {
   const [editingAccount, setEditingAccount] = useState<Account | undefined>(undefined);
   const [isMoneyOperationModalOpen, setIsMoneyOperationModalOpen] = useState(false);
   const [moneyOperationType, setMoneyOperationType] = useState<MoneyOperationType>('deposit');
-  const [currentView, setCurrentView] = useState<'bank' | 'stock' | 'bot'>('bank');
+  const [currentView] = useState<'bank' | 'stock' | 'bot'>('bank');
   const [notification, setNotification] = useState<{
     message: string;
     type: 'success' | 'error';
@@ -61,8 +71,16 @@ function App() {
     setNotification({ message, type, open: true });
   };
 
-  const handleTransfer = (transferData: TransferData) => {
-    const result = AccountService.executeTransfer(transferData, accounts);
+  const handleTransfer = (data: { fromAccountId: string; toAccountId: string; amount: number; description: string; }) => {
+    const transferData: TransferData = {
+      fromAccountId: data.fromAccountId,
+      toAccountId: data.toAccountId,
+      amount: data.amount,
+      descricao: data.description,
+      description: data.description // Legacy compatibility
+    };
+    
+    const result = AccountService.executeTransferLegacy(transferData, accounts);
     
     if (result.success) {
       setAccounts(result.accounts);
@@ -86,6 +104,9 @@ function App() {
     const newAccount: Account = {
       ...accountData,
       id: Date.now().toString(),
+      ativo: true,
+      saldo: accountData.saldo || accountData.balance || 0,
+      moeda: accountData.moeda || 'BRL',
     };
     setAccounts(prev => [...prev, newAccount]);
     showNotification('Conta adicionada com sucesso!', 'success');
@@ -107,7 +128,13 @@ function App() {
     setAccounts(prevAccounts =>
       prevAccounts.map(account =>
         account.id === editingAccount.id
-          ? { ...accountData, id: account.id }
+          ? { 
+              ...accountData, 
+              id: account.id, 
+              ativo: account.ativo,
+              saldo: accountData.saldo || accountData.balance || account.saldo,
+              moeda: accountData.moeda || account.moeda || 'BRL'
+            }
           : account
       )
     );
@@ -133,9 +160,9 @@ function App() {
     let result: AccountServiceResult;
     
     if (type === 'deposit') {
-      result = AccountService.executeDeposit(data.accountId, data.amount, data.description, accounts);
+      result = AccountService.executeDepositLegacy(data.accountId, data.amount, data.description, accounts);
     } else if (type === 'withdrawal') {
-      result = AccountService.executeWithdrawal(data.accountId, data.amount, data.description, accounts);
+      result = AccountService.executeWithdrawalLegacy(data.accountId, data.amount, data.description, accounts);
     } else {
       // Handle unexpected operation type
       showNotification(`Operação ${type} não suportada`, 'error');
@@ -161,8 +188,8 @@ function App() {
 
   // Preparar dados do portfólio para o bot
   const portfolioData: Portfolio = {
-    totalValue: accounts.reduce((sum, acc) => sum + acc.balance, 0),
-    cashBalance: accounts.reduce((sum, acc) => sum + acc.balance, 0),
+    totalValue: accounts.reduce((sum, acc) => sum + AccountService.getAccountBalance(acc), 0),
+    cashBalance: accounts.reduce((sum, acc) => sum + AccountService.getAccountBalance(acc), 0),
     stocks: [], // Por enquanto vazio, mas pode ser expandido
     riskProfile: 'moderate',
     investmentGoals: ['crescimento', 'preservação de capital']
@@ -193,57 +220,15 @@ function App() {
 
   return (
     <DashboardLayout>
-      {/* Botões de navegação */}
-      <div className="mb-6 flex gap-3">
-        <Button
-          variant={currentView === 'bank' ? 'contained' : 'outlined'}
-          onClick={() => setCurrentView('bank')}
-          startIcon={<AddIcon />}
-          sx={{ 
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 600
-          }}
-        >
-          Banco
-        </Button>
-        <Button
-          variant={currentView === 'stock' ? 'contained' : 'outlined'}
-          onClick={() => setCurrentView('stock')}
-          startIcon={<TrendingUpIcon />}
-          sx={{ 
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 600,
-            bgcolor: currentView === 'stock' ? '#1976d2' : 'transparent',
-            '&:hover': {
-              bgcolor: currentView === 'stock' ? '#1565c0' : 'rgba(25, 118, 210, 0.04)'
-            }
-          }}
-        >
-          Ações & Investimentos
-        </Button>
-        <Button
-          variant={currentView === 'bot' ? 'contained' : 'outlined'}
-          onClick={() => setCurrentView('bot')}
-          startIcon={<BotIcon />}
-          sx={{ 
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 600,
-            bgcolor: currentView === 'bot' ? '#1976d2' : 'transparent',
-            '&:hover': {
-              bgcolor: currentView === 'bot' ? '#1565c0' : 'rgba(25, 118, 210, 0.04)'
-            }
-          }}
-        >
-          SenseiBot - Assistente Financeiro
-        </Button>
-      </div>
       
-      <MuiGrid container spacing={3}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gap: '24px',
+        marginBottom: '24px'
+      }}>
         {accounts.map((account) => (
-          <MuiGrid item key={account.id} xs={12} sm={6} md={4} lg={3}>
+          <div key={account.id}>
             <AccountCard
               bankName={account.bankName}
               balance={account.balance}
@@ -269,9 +254,9 @@ function App() {
               }}
               onDelete={() => handleDelete(account.id)}
             />
-          </MuiGrid>
+          </div>
         ))}
-      </MuiGrid>
+      </div>
       
       <TransactionSummary transactions={transactions} />
       <TransactionHistory transactions={transactions} accounts={accounts} />

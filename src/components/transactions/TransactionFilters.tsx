@@ -5,10 +5,8 @@ import {
   MenuItem,
   IconButton,
   InputAdornment,
-  useTheme,
 } from '@mui/material';
 import { Clear as ClearIcon, Search as SearchIcon } from '@mui/icons-material';
-import { Transaction } from '../../types/account';
 
 interface TransactionFiltersProps {
   dateRange: { start: string; end: string };
@@ -29,7 +27,6 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
   onSearchChange,
   onClearFilters,
 }) => {
-  const theme = useTheme();
 
   return (
     <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>

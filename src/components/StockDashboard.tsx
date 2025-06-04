@@ -4,9 +4,6 @@ import {
   TrendingUp,
   TrendingDown,
   Plus,
-  Calendar,
-  DollarSign,
-  Activity,
   PieChart,
   Target,
   ChevronUp,
@@ -391,10 +388,30 @@ const StockDashboard: React.FC = () => {
             © 2025 Microsoft
           </div>
           <div className="flex space-x-4">
-            <a href="#" className="hover:text-white transition-colors duration-200">Política de Privacidade</a>
-            <a href="#" className="hover:text-white transition-colors duration-200">Cookies</a>
-            <a href="#" className="hover:text-white transition-colors duration-200">Termos de Uso</a>
-            <a href="#" className="hover:text-white transition-colors duration-200">Feedback</a>
+            <a 
+              href="/privacy-policy" 
+              className="hover:text-white transition-colors duration-200"
+            >
+              Política de Privacidade
+            </a>
+            <a 
+              href="/cookies" 
+              className="hover:text-white transition-colors duration-200"
+            >
+              Cookies
+            </a>
+            <a 
+              href="/terms" 
+              className="hover:text-white transition-colors duration-200"
+            >
+              Termos de Uso
+            </a>
+            <a 
+              href="/feedback" 
+              className="hover:text-white transition-colors duration-200"
+            >
+              Feedback
+            </a>
           </div>
         </div>
       </footer>

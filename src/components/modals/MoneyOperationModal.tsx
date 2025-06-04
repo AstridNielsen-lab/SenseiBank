@@ -67,9 +67,9 @@ export const MoneyOperationModal: React.FC<MoneyOperationModalProps> = ({
     
     const numAmount = Number(amount);
     if (isWithdraw) {
-      setProjectedBalance(account.balance - numAmount);
+      setProjectedBalance((account.balance ?? 0) - numAmount);
     } else {
-      setProjectedBalance(account.balance + numAmount);
+      setProjectedBalance((account.balance ?? 0) + numAmount);
     }
   }, [amount, account, isWithdraw, isAmountValid]);
 
@@ -83,7 +83,7 @@ export const MoneyOperationModal: React.FC<MoneyOperationModalProps> = ({
               <Typography variant="subtitle1" className="font-medium">
                 Conta: {account.bankName}
                 <span className="block text-sm text-gray-600 dark:text-gray-400">
-                  Saldo disponível: R$ {account.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  Saldo disponível: R$ {(account.balance ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               </Typography>
             )}

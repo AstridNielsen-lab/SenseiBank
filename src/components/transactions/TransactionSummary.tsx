@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Typography, Box, useTheme, Grid as MuiGrid } from '@mui/material';
+import { Paper, Typography, Box, useTheme, Grid } from '@mui/material';
 import { Transaction } from '../../types/account';
 import { AccountService } from '../../services/accountService';
 import { TrendingUp, TrendingDown, SwapHoriz } from '@mui/icons-material';
@@ -78,8 +78,8 @@ export const TransactionSummary: React.FC<TransactionSummaryProps> = ({ transact
   );
 
   return (
-    <MuiGrid container spacing={3} sx={{ mb: 4 }}>
-      <MuiGrid item xs={12} sm={6} md={4}>
+    <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid item xs={12} sm={6} md={4}>
         <SummaryCard
           title="Depósitos"
           value={summary.deposits}
@@ -87,8 +87,8 @@ export const TransactionSummary: React.FC<TransactionSummaryProps> = ({ transact
           icon={<TrendingUp sx={{ color: theme.palette.success.main }} />}
           color={theme.palette.success.main}
         />
-      </MuiGrid>
-      <MuiGrid item xs={12} sm={6} md={4}>
+      </Grid>
+      <Grid item xs={12} sm={6} md={4}>
         <SummaryCard
           title="Saques"
           value={summary.withdrawals}
@@ -96,8 +96,8 @@ export const TransactionSummary: React.FC<TransactionSummaryProps> = ({ transact
           icon={<TrendingDown sx={{ color: theme.palette.error.main }} />}
           color={theme.palette.error.main}
         />
-      </MuiGrid>
-      <MuiGrid item xs={12} sm={6} md={4}>
+      </Grid>
+      <Grid item xs={12} sm={6} md={4}>
         <SummaryCard
           title="Transferências"
           value={summary.transfers}
@@ -105,8 +105,8 @@ export const TransactionSummary: React.FC<TransactionSummaryProps> = ({ transact
           icon={<SwapHoriz sx={{ color: theme.palette.primary.main }} />}
           color={theme.palette.primary.main}
         />
-      </MuiGrid>
-    </MuiGrid>
+      </Grid>
+    </Grid>
   );
 };
 

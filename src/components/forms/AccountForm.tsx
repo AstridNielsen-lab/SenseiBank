@@ -277,7 +277,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({
                   inputProps: { min: 0, step: "0.01" },
                   startAdornment: (
                     <Typography variant="body2" sx={{ mr: 1 }}>
-                      {CURRENCY_CONFIG[formData.moeda].symbol}
+                      {CURRENCY_CONFIG[formData.moeda || 'BRL'].symbol}
                     </Typography>
                   )
                 }}
@@ -338,7 +338,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({
                     />
                   )}
                   <Chip 
-                    label={CURRENCY_CONFIG[formData.moeda].name} 
+                    label={CURRENCY_CONFIG[formData.moeda || 'BRL'].name}
                     variant="outlined" 
                     size="small"
                   />

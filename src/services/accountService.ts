@@ -1,6 +1,5 @@
 import { 
   Account, 
-  Bank,
   Transaction, 
   TransferData,
   DepositData,
@@ -10,8 +9,7 @@ import {
   AccountValidation,
   AccountBalance,
   Currency,
-  ValidationResult,
-  ApiResponse
+  ValidationResult
 } from '../types/account';
 import { ApiService } from './api';
 import { BankService } from './bankService';
@@ -314,8 +312,15 @@ export class AccountService {
       fromAccountId: data.fromAccountId,
       toAccountId: data.toAccountId,
       amount: data.amount,
+      // Required Transaction properties
+      tipo: 'TRANSFER',
+      descricao: data.descricao || data.description || '',
+      status: 'COMPLETED',
+      moedaOrigem: 'BRL',
+      data: new Date(),
+      // Legacy compatibility
       type: 'TRANSFER',
-      description: data.description,
+      description: data.description || data.descricao || '',
       date: new Date(),
     };
   }
@@ -415,24 +420,7 @@ export class AccountService {
     };
   }
 
-  static getAccountValidation(account: Account, accounts: Account[]): AccountValidation {
-    return {
-      hasInsufficientFunds: (amount: number): boolean => {
-        return this.getAccountBalance(account) < amount;
-      },
-      canTransfer: (amount: number, toAccountId: string): boolean => {
-        const validation = this.validateTransfer(account, amount, accounts, toAccountId);
-        return validation.isValid;
-      },
-      isValidCurrency: (currency: Currency): boolean => {
-        return ['BRL', 'USD', 'EUR'].includes(currency);
-      },
-      canConvertCurrency: (fromCurrency: Currency, toCurrency: Currency): boolean => {
-        // For now, only same currency transfers are supported
-        return fromCurrency === toCurrency;
-      }
-    };
-  }
+  // getAccountValidation is implemented below in the "Enhanced validation methods" section
 
   // Enhanced utility methods
   static formatCurrency(value: number, currency: Currency = 'BRL'): string {
