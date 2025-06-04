@@ -13,6 +13,7 @@ import FinancialBotChat from './components/FinancialBotChat';
 import { Portfolio } from './services/geminiService';
 import { TransactionHistory } from './components/transactions/TransactionHistory';
 import { TransactionSummary } from './components/transactions/TransactionSummary';
+import ErrorBoundary from './components/error/ErrorBoundary';
 
 // Define the type for money operation parameters
 interface MoneyOperationParams {
@@ -219,14 +220,15 @@ function App() {
   }
 
   return (
-    <DashboardLayout>
-      
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-        gap: '24px',
-        marginBottom: '24px'
-      }}>
+    <ErrorBoundary>
+      <DashboardLayout>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: '24px',
+          marginBottom: '24px'
+        }}>
         {accounts.map((account) => (
           <div key={account.id}>
             <AccountCard
@@ -337,7 +339,8 @@ function App() {
           {notification.message}
         </Alert>
       </Snackbar>
-    </DashboardLayout>
+      </DashboardLayout>
+    </ErrorBoundary>
   );
 }
 

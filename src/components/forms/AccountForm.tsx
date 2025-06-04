@@ -76,6 +76,11 @@ export const AccountForm: React.FC<AccountFormProps> = ({
         }
       } catch (error) {
         console.error('Error loading banks:', error);
+        // Display friendly error message to user through form
+        onClose(); // Close the form
+        // You could also show the error in a more user-friendly way
+        // For example, using the notification system from App.tsx
+        // This would require passing a showNotification prop to AccountForm
       } finally {
         setLoadingBanks(false);
       }
